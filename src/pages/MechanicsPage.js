@@ -33,7 +33,7 @@ const MechanicsPage = () => {
 
   const handleAcceptOrder = async (orderId) => {
     try {
-      await acceptOrder(orderId);
+      await acceptOrder(orderId, userEmail);
       toast.success('Order accepted successfully');
       const updatedOrders = await fetchMechanicsOrders();
       setOrders(updatedOrders);
@@ -88,7 +88,7 @@ const MechanicsPage = () => {
             {orders.map((order) => (
               <tr key={order.orderId}>
                 <td className="py-2 px-4 border-b text-left">{order.orderId}</td>
-                <td className="py-2 px-4 border-b text-left">{order.name}</td>
+                <td className="py-2 px-4 border-b text-left">{order.serviceName}</td>
                 <td className="py-2 px-4 border-b text-left">{order.status}</td>
                 <td className="py-2 px-4 border-b text-left">
                   <button

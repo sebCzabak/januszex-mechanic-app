@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { fetchWarehouseParts } from '../services/api';
+import { fetchWarehouseParts, fetchPartRequests } from '../services/api';
 import { useAuth } from '../context/AuthContext'; // Importowanie useAuth
 
 const WarehousePage = () => {
   const [parts, setParts] = useState([]);
+  const [partRequests, setPartRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { userEmail } = useAuth(); // Używanie useAuth
+  const { userId } = useAuth(); // Używanie useAuth
 
   useEffect(() => {
     const getParts = async () => {
       try {
-        const data = await fetchWarehouseParts();
-        console.log('Fetched parts:', data); // Debugging: check fetched data
-        setParts(data);
+        const partsData = await fetchWarehouseParts();
+        const partRequestsData = await fetchPartRequests();
+        console.log('Fetched parts:', partsData); // Debugging: check fetched data
+        console.log('Fetched part requests:', partRequestsData); // Debugging: check fetched data
+        setParts(partsData);
+        setPartRequests(partRequestsData);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -35,7 +39,7 @@ const WarehousePage = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4 text-center">Magazyn</h1>
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-8">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr>
@@ -50,6 +54,29 @@ const WarehousePage = () => {
                 <td className="py-2 px-4 border-b text-left">{part.partId}</td>
                 <td className="py-2 px-4 border-b text-left">{part.name}</td>
                 <td className="py-2 px-4 border-b text-left">{part.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <h2 className="text-2xl font-bold mb-4 text-center">Zapytania o części</h2>
+      <div className="flex justify-center">
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b text-left">ID</th>
+              <th className="py-2 px-4 border-b text-left">Mechanik</th>
+              <th className="py-2 px-4 border-b text-left">Części</th>
+              <th className="py-2 px-4 border-b text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {partRequests.map((request) => (
+              <tr key={request.requestId}>
+                <td className="py-2 px-4 border-b text-left">{request.requestId}</td>
+                <td className="py-2 px-4 border-b text-left">{request.mechanicName}</td>
+                <td className="py-2 px-4 border-b text-left">{request.parts}</td>
+                <td className="py-2 px-4 border-b text-left">{request.status}</td>
               </tr>
             ))}
           </tbody>

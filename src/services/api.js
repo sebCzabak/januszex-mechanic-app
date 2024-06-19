@@ -31,7 +31,6 @@ export const fetchWarehouseParts = async () => {
   try {
     const response = await api.get('part/parts');
     console.log('API response:', response.data);
-
     return response.data;
   } catch (error) {
     console.error('Error fetching warehouse parts:', error);
@@ -48,15 +47,17 @@ export const fetchUsers = async () => {
     throw error;
   }
 };
-
-export const acceptOrder = async (orderId) => {
-  const response = await api.put(`orders/accept/${orderId}`);
+export const fetchPartRequests = async () => {
+  const response = await api.get('order/part-requests');
   return response.data;
 };
 
+export const acceptOrder = async (orderId, mechanicName) => {
+  await api.put(`order/orders/${orderId}/status`, { status: 'accepted', mechanicName });
+};
+
 export const requestParts = async (orderId, parts) => {
-  const response = await api.post(`orders/request-parts/${orderId}`, { parts });
-  return response.data;
+  await api.post(`order/orders/${orderId}/parts`, { parts });
 };
 
 export const issuePart = async (partId, quantity) => {
@@ -114,6 +115,6 @@ export const deleteOrder = async (orderId) => {
   return response.data;
 };
 export const fetchUnsplashImage = () => {
-  return `https://source.unsplash.com/random/1600x900/?car,repair,mechanic`;
+  return `https://source.unsplash.com/1600x900/?mechanic`;
 };
 export default api;

@@ -3,6 +3,7 @@ import { fetchServices, createOrder } from '../services/api';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import serviceImage from '../images/dmitriy-demidov-iuuJC_pjLU0-unsplash.jpg';
 
 Modal.setAppElement('#root');
 
@@ -12,9 +13,9 @@ const ServicesPage = () => {
   const [error, setError] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
-  const { isLoggedIn, userEmail } = useAuth();
+  const [date, setDate] = useState('');
+  const { isLoggedIn, userId } = useAuth();
 
   useEffect(() => {
     const getServices = async () => {
@@ -39,24 +40,23 @@ const ServicesPage = () => {
   const closeModal = () => {
     setModalIsOpen(false);
     setSelectedService(null);
-    setDate('');
     setDescription('');
+    setDate('');
   };
 
   const handleOrderSubmit = async () => {
-    if (!date || !description) {
-      toast.error('Please fill in all fields');
-      return;
-    }
+    if (!selectedService || !userId) return;
+
+    const orderData = {
+      serviceName: selectedService.serviceName,
+      servicesIds: [selectedService.serviceId],
+      date,
+      description,
+      userId,
+      status: 'Złożony',
+    };
+
     try {
-      const orderData = {
-        servicesIds: [selectedService.serviceId],
-        serviceName: selectedService.name,
-        date,
-        description,
-        userId: userEmail,
-      };
-      console.log('Order Data:', orderData); // Debugging: log data before sending
       await createOrder(orderData);
       toast.success('Order created successfully');
       closeModal();
@@ -75,30 +75,30 @@ const ServicesPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Usługi</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Nasze Usługi</h1>
       <div className="flex justify-center">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Nazwa</th>
-              <th className="py-2 px-4 border-b">Opis</th>
-              <th className="py-2 px-4 border-b">Cena</th>
-              {isLoggedIn && <th className="py-2 px-4 border-b">Akcje</th>}
+              <th className="py-2 px-4 border-b text-left">Nazwa</th>
+              <th className="py-2 px-4 border-b text-left">Opis</th>
+              <th className="py-2 px-4 border-b text-left">Cena</th>
+              {isLoggedIn && <th className="py-2 px-4 border-b text-left">Akcje</th>}
             </tr>
           </thead>
           <tbody>
             {services.map((service) => (
               <tr key={service.serviceId}>
-                <td className="py-2 px-4 border-b">{service.name}</td>
-                <td className="py-2 px-4 border-b">{service.description}</td>
-                <td className="py-2 px-4 border-b">{service.price}</td>
+                <td className="py-2 px-4 border-b text-left">{service.serviceName}</td>
+                <td className="py-2 px-4 border-b text-left">{service.description}</td>
+                <td className="py-2 px-4 border-b text-left">{service.price}</td>
                 {isLoggedIn && (
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b text-left">
                     <button
                       onClick={() => openModal(service)}
                       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
-                      Zamów
+                      Zamów usługę
                     </button>
                   </td>
                 )}
@@ -107,21 +107,25 @@ const ServicesPage = () => {
           </tbody>
         </table>
       </div>
-
+      <img
+        src={serviceImage}
+        alt="Service"
+        className="w-full mt-4 h-auto"
+      />
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
-        contentLabel="Order Service"
+        contentLabel="Zamów Usługę"
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <h2 className="text-2xl font-bold mb-4">Zamów Usługę</h2>
+        <h2 className="text-2xl font-bold mb-4">Zamów {selectedService?.serviceName}</h2>
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="date"
           >
-            Data
+            Data i godzina
           </label>
           <input
             type="datetime-local"

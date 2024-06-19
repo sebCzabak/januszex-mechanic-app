@@ -1,23 +1,40 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userRole, setUserRole] = useState('');
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
+    // Clear token on app load
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    setIsLoggedIn(false);
+    setUserEmail('');
+    setUserRole('');
+    setUserId('');
+
     const token = localStorage.getItem('token');
-    const email = localStorage.getItem('userEmail');
-    setIsLoggedIn(!!token);
-    setUserEmail(email || '');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setIsLoggedIn(true);
+      setUserEmail(decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']);
+      setUserRole(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+      setUserId(decodedToken.UserId);
+    }
   }, []);
 
-  const login = (token, email) => {
+  const login = (token) => {
     localStorage.setItem('token', token);
-    localStorage.setItem('userEmail', email);
+    const decodedToken = jwtDecode(token);
     setIsLoggedIn(true);
-    setUserEmail(email);
+    setUserEmail(decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']);
+    setUserRole(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+    setUserId(decodedToken.UserId);
   };
 
   const logout = () => {
@@ -25,11 +42,19 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem('userEmail');
     setIsLoggedIn(false);
     setUserEmail('');
+    setUserRole('');
+    setUserId('');
   };
 
-  return <AuthContext.Provider value={{ isLoggedIn, userEmail, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, userEmail, userRole, userId, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-const useAuth = () => useContext(AuthContext);
+const useAuth = () => {
+  return useContext(AuthContext);
+};
 
-export { AuthProvider, useAuth };
+export { AuthContext, AuthProvider, useAuth };

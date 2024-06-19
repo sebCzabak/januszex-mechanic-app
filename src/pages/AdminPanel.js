@@ -270,7 +270,7 @@ const AdminPanel = () => {
                 {services.map((service) => {
                   return (
                     <tr key={service.serviceId}>
-                      <td className="py-2 px-4 border-b text-left">{service.name}</td>
+                      <td className="py-2 px-4 border-b text-left">{service.serviceName}</td>
                       <td className="py-2 px-4 border-b text-left">{service.description}</td>
                       <td className="py-2 px-4 border-b text-left">{service.price}</td>
                       <td className="py-2 px-4 border-b text-left">
@@ -310,16 +310,16 @@ const AdminPanel = () => {
                 <tr>
                   <th className="py-2 px-4 border-b text-left">ID</th>
                   <th className="py-2 px-4 border-b text-left">Data</th>
-                  <th className="py-2 px-4 border-b text-left">Opis</th>
+                  <th className="py-2 px-4 border-b text-left">Nazwa</th>
                   <th className="py-2 px-4 border-b text-left">Akcje</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id}>
-                    <td className="py-2 px-4 border-b text-left">{order.id}</td>
+                    <td className="py-2 px-4 border-b text-left">{order.orderId}</td>
                     <td className="py-2 px-4 border-b text-left">{order.date}</td>
-                    <td className="py-2 px-4 border-b text-left">{order.description}</td>
+                    <td className="py-2 px-4 border-b text-left">{order.serviceName}</td>
                     <td className="py-2 px-4 border-b text-left">
                       <button
                         onClick={() => openModal('order', order)}

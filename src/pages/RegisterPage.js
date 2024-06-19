@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext'; // Upewnij się, że ścieżka jest poprawna
-
+import { useAuth } from '../context/AuthContext';
+import RegisterImage from '../images/nina-mercado-Y_t0n-T4H5M-unsplash.jpg';
 const RegisterPage = () => {
   const [forename, setForename] = useState('');
   const [surname, setSurname] = useState('');
@@ -11,15 +11,15 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { login } = useAuth(); // Używamy useAuth
+  const { login } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const response = await api.post('auth/register', { forename, surname, email, password });
-      const { token } = response.data; // Zakładamy, że serwer zwraca token
+      const { token } = response.data;
       login(token);
-      localStorage.setItem('userEmail', email); // Przechowywanie e-maila w localStorage
+      localStorage.setItem('userEmail', email);
       toast.success('Registered successfully');
       navigate('/');
     } catch (err) {
@@ -30,7 +30,14 @@ const RegisterPage = () => {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full max-w-xs">
+      <div className="flex flex-col md:flex-row bg-white shadow-md rounded p-8">
+        <div className="md:w-1/2 flex justify-center items-center mb-4 md:mb-0">
+          <img
+            src={RegisterImage}
+            alt="christian-buehner-Fd6osyVbtG4-unsplash"
+            className="w-full h-auto"
+          />
+        </div>
         <form
           onSubmit={handleRegister}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
