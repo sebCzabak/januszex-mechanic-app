@@ -74,44 +74,47 @@ const ServicesPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Nasze Usługi</h1>
-      <div className="flex justify-center">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b text-left">Nazwa</th>
-              <th className="py-2 px-4 border-b text-left">Opis</th>
-              <th className="py-2 px-4 border-b text-left">Cena</th>
-              {isLoggedIn && <th className="py-2 px-4 border-b text-left">Akcje</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {services.map((service) => (
-              <tr key={service.serviceId}>
-                <td className="py-2 px-4 border-b text-left">{service.serviceName}</td>
-                <td className="py-2 px-4 border-b text-left">{service.description}</td>
-                <td className="py-2 px-4 border-b text-left">{service.price}</td>
-                {isLoggedIn && (
-                  <td className="py-2 px-4 border-b text-left">
-                    <button
-                      onClick={() => openModal(service)}
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Zamów usługę
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="relative flex justify-center items-center h-screen">
       <img
         src={serviceImage}
-        alt="Service"
-        className="w-full mt-4 h-auto"
+        alt="background"
+        className="absolute inset-0 w-full h-full object-cover opacity-50 z-0"
       />
+      <div className="relative z-10 bg-white p-4 shadow-md rounded-md">
+        <h1 className="text-3xl font-bold mb-4 text-center">Nasze Usługi</h1>
+        <div className="flex justify-center">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b text-left">Nazwa</th>
+                <th className="py-2 px-4 border-b text-left">Opis</th>
+                <th className="py-2 px-4 border-b text-left">Cena</th>
+                {isLoggedIn && <th className="py-2 px-4 border-b text-left">Akcje</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <tr key={service.serviceId}>
+                  <td className="py-2 px-4 border-b text-left">{service.serviceName}</td>
+                  <td className="py-2 px-4 border-b text-left">{service.description}</td>
+                  <td className="py-2 px-4 border-b text-left">{service.price}</td>
+                  {isLoggedIn && (
+                    <td className="py-2 px-4 border-b text-left">
+                      <button
+                        onClick={() => openModal(service)}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Zamów usługę
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
@@ -140,7 +143,7 @@ const ServicesPage = () => {
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="description"
           >
-            Opis
+            Informacje dodatkowe
           </label>
           <textarea
             id="description"

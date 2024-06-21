@@ -222,6 +222,7 @@ const AdminPanel = () => {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
+                    <td className="py-2 px-4 border-b text-left">{user.userId}</td>
                     <td className="py-2 px-4 border-b text-left">{user.forename}</td>
                     <td className="py-2 px-4 border-b text-left">{user.surname}</td>
                     <td className="py-2 px-4 border-b text-left">{user.email}</td>

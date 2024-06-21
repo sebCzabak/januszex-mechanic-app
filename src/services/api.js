@@ -19,7 +19,7 @@ export const fetchServices = async () => {
 
 export const fetchMechanicsOrders = async () => {
   try {
-    const response = await api.get('order/orders');
+    const response = await api.get('order/mechanic-orders');
     return response.data;
   } catch (error) {
     console.error('Error fetching mechanics orders:', error);
@@ -55,13 +55,16 @@ export const fetchPartRequests = async () => {
 export const acceptOrder = async (orderId, mechanicName) => {
   await api.put(`order/orders/${orderId}/status`, { status: 'accepted', mechanicName });
 };
-
-export const requestParts = async (orderId, parts) => {
-  await api.post(`order/orders/${orderId}/parts`, { parts });
+export const updateOrderStatus = async (orderId, statusUpdate) => {
+  await api.put(`/order/orders/${orderId}/status`, statusUpdate);
 };
 
-export const issuePart = async (partId, quantity) => {
-  const response = await api.post(`warehouse/issue/${partId}`, { quantity });
+export const requestParts = async (orderId, partRequestData) => {
+  await api.post(`order/orders/${orderId}/parts`, { partRequestData });
+};
+
+export const issueParts = async (data) => {
+  const response = await api.put('part/issue-parts', data);
   return response.data;
 };
 
@@ -101,7 +104,7 @@ export const deleteService = async (serviceId) => {
 };
 
 export const createOrder = async (order) => {
-  const response = await api.post('order', order);
+  const response = await api.post('order/create', order);
   return response.data;
 };
 
@@ -114,7 +117,5 @@ export const deleteOrder = async (orderId) => {
   const response = await api.delete(`orders/${orderId}`);
   return response.data;
 };
-export const fetchUnsplashImage = () => {
-  return `https://source.unsplash.com/1600x900/?mechanic`;
-};
+
 export default api;

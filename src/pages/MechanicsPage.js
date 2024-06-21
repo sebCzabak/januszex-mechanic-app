@@ -1,25 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { fetchMechanicsOrders, acceptOrder, requestParts } from '../services/api';
-import Modal from 'react-modal';
+import { fetchMechanicsOrders, acceptOrder, updateOrderStatus } from '../services/api';
+import { jsPDF } from 'jspdf';
 import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext'; // Importowanie useAuth
-
-Modal.setAppElement('#root');
+import { useAuth } from '../context/AuthContext';
 
 const MechanicsPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [parts, setParts] = useState('');
-  const { userEmail } = useAuth(); // Używanie useAuth
+  const { userEmail } = useAuth();
 
   useEffect(() => {
     const getOrders = async () => {
       try {
         const data = await fetchMechanicsOrders();
-        console.log('Fetched orders:', data); // Debugging: check fetched data
+        console.log('Fetched orders:', data);
         setOrders(data);
         setLoading(false);
       } catch (err) {
@@ -42,25 +37,26 @@ const MechanicsPage = () => {
     }
   };
 
-  const openModal = (order) => {
-    setSelectedOrder(order);
-    setModalIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setSelectedOrder(null);
-    setParts('');
-  };
-
-  const handleRequestParts = async () => {
+  const handleStartService = async (order) => {
     try {
-      await requestParts(selectedOrder.id, parts);
-      toast.success('Parts requested successfully');
-      closeModal();
+      await updateOrderStatus(order.orderId, { status: 'W trakcie', mechanicName: userEmail });
+      toast.success('Service started successfully');
+      generatePDF(order.serviceName, order.price);
+      const updatedOrders = await fetchMechanicsOrders();
+      setOrders(updatedOrders);
     } catch (err) {
-      toast.error('Failed to request parts');
+      toast.error('Failed to start service');
     }
+  };
+
+  const generatePDF = (serviceName, price) => {
+    const doc = new jsPDF();
+    doc.text('Pokwitowanie/Rachunek', 10, 10);
+    doc.text('Firma: Januszex', 10, 20);
+    doc.text(`Usluga: ${serviceName}`, 10, 20);
+    doc.text(`Cena: ${price + price * 0.2}  PLN`, 10, 30);
+    doc.text(`Data: ${new Date().toLocaleString()}`, 10, 40);
+    doc.save('rachunek.pdf');
   };
 
   if (loading) {
@@ -88,66 +84,30 @@ const MechanicsPage = () => {
             {orders.map((order) => (
               <tr key={order.orderId}>
                 <td className="py-2 px-4 border-b text-left">{order.orderId}</td>
-                <td className="py-2 px-4 border-b text-left">{order.serviceName}</td>
+                <td className="py-2 px-4 border-b text-left">{order.serviceName || 'Unknown'}</td>
                 <td className="py-2 px-4 border-b text-left">{order.status}</td>
                 <td className="py-2 px-4 border-b text-left">
                   <button
                     onClick={() => handleAcceptOrder(order.orderId)}
                     className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
+                    disabled={order.status === 'Zaakceptowano'}
                   >
-                    Akceptuj
+                    {order.status === 'Zaakceptowano' ? 'Zaakceptowano' : 'Zaakceptuj zlecenie'}
                   </button>
-                  <button
-                    onClick={() => openModal(order)}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    Zamów części
-                  </button>
+                  {order.status === 'Części wydane' && (
+                    <button
+                      onClick={() => handleStartService(order)}
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                      Rozpocznij serwis
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="Request Parts"
-        className="modal"
-        overlayClassName="modal-overlay"
-      >
-        <h2 className="text-2xl font-bold mb-4">Zamów części</h2>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="parts"
-          >
-            Części
-          </label>
-          <textarea
-            id="parts"
-            value={parts}
-            onChange={(e) => setParts(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            rows="4"
-          ></textarea>
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            onClick={handleRequestParts}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Zamów
-          </button>
-          <button
-            onClick={closeModal}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Anuluj
-          </button>
-        </div>
-      </Modal>
     </div>
   );
 };
